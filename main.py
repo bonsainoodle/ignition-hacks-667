@@ -10,7 +10,6 @@ SYMBL_AI_APP_ID = credentials["SYMBL_AI_APP_ID"]
 SYMBL_AI_APP_SECRET = credentials["SYMBL_AI_APP_SECRET"]
 
 
-<<<<<<< HEAD
 audioManager = AudioManager(
     SAMPLE_RATE=48000, CHUNK=1024, SYMBL_AI_APP_ID=SYMBL_AI_APP_ID, SYMBL_AI_APP_SECRET=SYMBL_AI_APP_SECRET
 )
@@ -48,11 +47,6 @@ conn = symbl.Streaming.start_connection(
 
 conn.subscribe(events)
 
-audioManager.getSourceStream(conn)
-=======
-audioManager = AudioManager(SYMBL_AI_APP_ID=SYMBL_AI_APP_ID, SYMBL_AI_APP_SECRET=SYMBL_AI_APP_SECRET)
-
 audioManager.selectSource()
 
 audioManager.getSourceStream()
->>>>>>> 56fd027f559e0e02137361525b58ca4199c02cc2

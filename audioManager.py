@@ -26,11 +26,8 @@ class AudioManager:
 
         try:
             if choice >= 0:
-<<<<<<< HEAD
-                self.source = speakers[choice]
-=======
-                self.source = sources[choice]
->>>>>>> 56fd027f559e0e02137361525b58ca4199c02cc2
+                self.source = inputs[choice]
+                self.source = inputs[choice]
             else:
                 raise IndexError
         except IndexError:
