@@ -15,6 +15,10 @@ DEEPL_API_KEY = credentials["DEEPL_API_KEY"]
 
 speakerManager = SpeakerManager()
 
+print("------------------------------")
+
+speakerManager.selectSpeaker()
+
 
 translationManager = TranslationManager(DEEPL_API_KEY=DEEPL_API_KEY)
 
