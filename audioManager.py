@@ -1,49 +1,73 @@
-import soundcard as sc
+import sounddevice as sd
+import symbl
 import numpy as np
 
 
 class AudioManager:
-    def __init__(self, SAMPLE_RATE, CHUNK, SYMBL_AI_APP_ID, SYMBL_AI_APP_SECRET) -> None:
-        self.SAMPLE_RATE = SAMPLE_RATE
-        self.CHUNK = CHUNK
+    def __init__(self, SYMBL_AI_APP_ID, SYMBL_AI_APP_SECRET) -> None:
         self.SYMBL_AI_APP_ID = SYMBL_AI_APP_ID
         self.SYMBL_AI_APP_SECRET = SYMBL_AI_APP_SECRET
 
         self.source = None
 
     def selectSource(self) -> None:
-        speakers = sc.all_speakers()
+        sources = sd.query_devices()
 
-        for index, speaker in enumerate(speakers):
-            print(f"{index} : {speaker.name}")
+        inputs = []
+
+        for index, source in enumerate(sources):
+            if source["max_input_channels"] != 0 and source["max_output_channels"] == 0:
+                inputs.append(source)
+
+        for index, input_ in enumerate(inputs):
+            print(f"{index} : {input_['name']}")
 
         choice = int(input("Select a source: "))
 
         try:
-            if choice > 0:
-                self.source = speakers[choice]
+            if choice >= 0:
+                self.source = sources[choice]
             else:
                 raise IndexError
         except IndexError:
             print("Invalid choice")
             exit()
 
-    def getSourceStream(self, conn) -> None:
+    def getSourceStream(self) -> None:
         if self.source is None:
             raise ValueError("No source selected")
 
-        with sc.get_microphone(id=str(self.source.name), include_loopback=True).recorder(
-            samplerate=self.SAMPLE_RATE,
-            blocksize=self.CHUNK,
-        ) as mic:
-            print("Listening...")
+        events = {
+            "message_response": lambda response: print(
+                "Final Messages -> ",
+                [message["payload"]["content"] for message in response["messages"]],
+            ),
+            "message": lambda response: print(
+                "live transcription : {}".format(response["message"]["punctuated"]["transcript"])
+            )
+            if "punctuated" in response["message"]
+            else print(response),
+            "insight_response": lambda response: [
+                print("Insights Item of type {} detected -> {}".format(insight["type"], insight["payload"]["content"]))
+                for insight in response["insights"]
+            ],
+            "topic_response": lambda response: [
+                print("Topic detected -> {} with root words, {}".format(topic["phrases"], topic["rootWords"]))
+                for topic in response["topics"]
+            ],
+        }
 
-            while True:
-                stream = mic.record()
+        SYMBL_CONFIG = {
+            "confidenceThreshold": 0.5,
+            "speechRecognition": {"sampleRateHertz": 44100},
+        }
 
-                converted_stream = stream.copy().tobytes()
+        conn = symbl.Streaming.start_connection(
+            credentials={"app_id": self.SYMBL_AI_APP_ID, "app_secret": self.SYMBL_AI_APP_SECRET},
+            insight_types=["question", "action_item", "follow_up", "topic"],
+            config=SYMBL_CONFIG,
+        )
 
-                if converted_stream:
-                    conn.send_audio(converted_stream)
+        conn.subscribe(events)
 
-                mic.flush()
+        conn.send_audio_from_mic(device=self.source["index"])
