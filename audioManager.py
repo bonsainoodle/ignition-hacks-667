@@ -1,4 +1,5 @@
 import soundcard as sc
+import numpy as np
 
 
 class AudioManager:
@@ -7,9 +8,8 @@ class AudioManager:
         self.CHUNK = CHUNK
         self.SYMBL_AI_APP_ID = SYMBL_AI_APP_ID
         self.SYMBL_AI_APP_SECRET = SYMBL_AI_APP_SECRET
-        
+
         self.source = None
-        self.stream = []
 
     def selectSource(self) -> None:
         speakers = sc.all_speakers()
@@ -28,24 +28,22 @@ class AudioManager:
             print("Invalid choice")
             exit()
 
-    def getSourceStream(self) -> None:
+    def getSourceStream(self, conn) -> None:
         if self.source is None:
             raise ValueError("No source selected")
 
         with sc.get_microphone(id=str(self.source.name), include_loopback=True).recorder(
-            samplerate=self.SAMPLE_RATE
+            samplerate=self.SAMPLE_RATE,
+            blocksize=self.CHUNK,
         ) as mic:
-
             print("Listening...")
 
             while True:
-                stream = mic.record(numframes=self.CHUNK).tolist()
+                stream = mic.record()
 
-                for frame in stream:
-                    self.stream.append(frame)
+                converted_stream = stream.copy().tobytes()
 
-    def stream2Text(self) -> None:
-        if not self.stream:
-            raise ValueError("No stream data")
-        else:
-            pass
+                if converted_stream:
+                    conn.send_audio(converted_stream)
+
+                mic.flush()

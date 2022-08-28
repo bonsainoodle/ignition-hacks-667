@@ -1,20 +1,5 @@
-import json
 import symbl
-from audioManager import AudioManager
 
-
-with open("credentials.json") as f:
-    credentials = json.load(f)
-
-SYMBL_AI_APP_ID = credentials["SYMBL_AI_APP_ID"]
-SYMBL_AI_APP_SECRET = credentials["SYMBL_AI_APP_SECRET"]
-
-
-audioManager = AudioManager(
-    SAMPLE_RATE=44100, CHUNK=4096, SYMBL_AI_APP_ID=SYMBL_AI_APP_ID, SYMBL_AI_APP_SECRET=SYMBL_AI_APP_SECRET
-)
-
-audioManager.selectSource()
 
 events = {
     "message_response": lambda response: print(
@@ -34,10 +19,14 @@ events = {
     ],
 }
 
+
 SYMBL_CONFIG = {
     "confidenceThreshold": 0.5,
     "speechRecognition": {"sampleRateHertz": 44100},
 }
+
+SYMBL_AI_APP_ID = "7433624d4367486372624573506a7654566b726434716747554f546b66486546"
+SYMBL_AI_APP_SECRET = "48414d786f4c2d796936397768304574506630682d4a644e4568376e62443539534f425a564e53585838524c495a6657384e78633739306b7954542d725f456e"
 
 conn = symbl.Streaming.start_connection(
     credentials={"app_id": SYMBL_AI_APP_ID, "app_secret": SYMBL_AI_APP_SECRET},
@@ -47,4 +36,4 @@ conn = symbl.Streaming.start_connection(
 
 conn.subscribe(events)
 
-audioManager.getSourceStream(conn)
+conn.send_audio_from_mic()
