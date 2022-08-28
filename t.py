@@ -22,7 +22,7 @@ events = {
 
 SYMBL_CONFIG = {
     "confidenceThreshold": 0.5,
-    "speechRecognition": {"sampleRateHertz": 44100},
+    "speechRecognition": {"sampleRateHertz": 48000},
 }
 
 SYMBL_AI_APP_ID = "7433624d4367486372624573506a7654566b726434716747554f546b66486546"

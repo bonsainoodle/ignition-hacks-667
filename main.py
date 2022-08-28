@@ -11,7 +11,7 @@ SYMBL_AI_APP_SECRET = credentials["SYMBL_AI_APP_SECRET"]
 
 
 audioManager = AudioManager(
-    SAMPLE_RATE=44100, CHUNK=4096, SYMBL_AI_APP_ID=SYMBL_AI_APP_ID, SYMBL_AI_APP_SECRET=SYMBL_AI_APP_SECRET
+    SAMPLE_RATE=48000, CHUNK=1024, SYMBL_AI_APP_ID=SYMBL_AI_APP_ID, SYMBL_AI_APP_SECRET=SYMBL_AI_APP_SECRET
 )
 
 audioManager.selectSource()
@@ -36,7 +36,7 @@ events = {
 
 SYMBL_CONFIG = {
     "confidenceThreshold": 0.5,
-    "speechRecognition": {"sampleRateHertz": 44100},
+    "speechRecognition": {"sampleRateHertz": 48000},
 }
 
 conn = symbl.Streaming.start_connection(

@@ -20,7 +20,7 @@ class AudioManager:
         choice = int(input("Select a source: "))
 
         try:
-            if choice > 0:
+            if choice >= 0:
                 self.source = speakers[choice]
             else:
                 raise IndexError
